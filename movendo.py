@@ -1,8 +1,9 @@
 from nltk.util import ngrams
 from collections import Counter
 import os
+import shutil 
 
-num=1
+num=0
 count = 0
 Oldroot = ''
 categoria = ''
@@ -22,7 +23,11 @@ for root, dirs, files in os.walk('notícias/resultados-filtro-automatico'):
             rootbegin = root.split('/')[2:size]
             ano = rootbegin[0]
             jornal = rootbegin[1]
-            keyword = rootbegin[2]  #.split('-')[1]
+            if('-' in rootbegin[2]):
+                keyword = rootbegin[2].split('-')[1]
+            else:
+                keyword = rootbegin[2]
+
 
             # Coleta as informações das pastas que está sendo lidas
             divide = line.split(',')
@@ -38,13 +43,21 @@ for root, dirs, files in os.walk('notícias/resultados-filtro-automatico'):
             except:
                 pass
             rootbegin = "/".join(rootbegin)
-            if(f'{categoria}\n' == movePasta): #and root!=Oldroot):
+            #print(f'{categoria} ---- {movePasta} >>>> {newPasta}', end="")
+            if(f'{categoria}'== movePasta):  #and root!=Oldroot):
                 #Oldroot = root
-                print(f'{num}! - {root}')
+                print('--------------------------')
                 for file in files:
-                    os.remove(f'{root}/{file}')
-                try:
-                    os.rmdir(root)
-                except:
-                    pass
-                num+=1
+                    if(os.path.exists(f'notícias/automatico-organizado/{ano}/{jornal}/{keyword}/{newPasta}')):
+                        shutil.copy(f'{root}/{file}', f'notícias/automatico-organizado/{ano}/{jornal}/{keyword}/{newPasta}')
+                        print(f'{num}! - {root}')
+                        num+=1
+                    else:
+                        os.makedirs(f'notícias/automatico-organizado/{ano}/{jornal}/{keyword}/{newPasta}')
+                        try:
+                            shutil.copy(f'{root}/{file}', f'notícias/automatico-organizado/{ano}/{jornal}/{keyword}/{newPasta}')
+                            print(f'{num}! - {root}\n')
+                            num+=1
+                            print('done! =)')
+                        except:
+                            print('erro pra mover a pasta')
