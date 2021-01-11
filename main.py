@@ -3,25 +3,43 @@ from collections import Counter
 import os
 
 num=0
-for root, dirs, files in os.walk('notícias/resultados-ngramas'):
+for root, dirs, files in os.walk('notícias/automatico-organizado'):
     for file in files:
-        nomearquivo = len(os.listdir('teste-resultados-ngramas')) +1
-
-        # Pegar os arquivos do excel, botar em um .txt e ler cada linha
-        # Separar pelos que serão excluídos
-        # e aí ter que fazer vários 'if's para juntar as pastas..
-        # os.walk if(rools)
         filename, extension = os.path.splitext(file)
+                    #nomearquivo = len(os.listdir('teste-resultados-ngramas')) +1
+        # Coleta as informações do diretório atual   
+        size = len(root.split('/'))
+        rootbegin = root.split('/')[2:size]
+        ano = rootbegin[0]
+        jornal = rootbegin[1]
+        if('-' in rootbegin[2]):
+            keyword = rootbegin[2].split('-')[1]
+        else:
+            keyword = rootbegin[2]
+        try:
+            categoria = rootbegin[3]
+        except:
+            pass
+
+        diretorio = f'teste-resultados-ngramas/{ano}/{jornal}/{keyword}/{categoria}'
+        # Procura por arquivos .txt (as matérias) e abre a leitura delas
         if(extension =='.txt'):
             print(num)
             num+=1
-            #print(f'-------{filename[:20]}{extension}-----------')
-            f = open(f'{root}/{filename}{extension}', "r")
-            #print(f'{root}/{filename}{extension}\n')
+            f = open(f'{root}/{file}', "r")
             word_data = f.read()
-            with open(f'teste-resultados-ngramas/{nomearquivo}.txt', 'w', encoding='utf-8') as text:
+
+        if(os.path.exists(diretorio)):
+            pass
+        else:
+            os.makedirs(diretorio)
+
+
+        # Para cada matéria (.txt) cria um novo arquivo com o ngrama
+        try:
+            with open(f'{diretorio}/{filename}.txt', 'w', encoding='utf-8') as text:
                 text.write(str(Counter(ngrams(word_data.split(), 3))))
-            f = open(f'teste-resultados-ngramas/{nomearquivo}.txt', "r")
+            f = open(f'{diretorio}/{filename}.txt', "r")
             texto = f.read()
             quebra = texto.split(', (')
             try:
@@ -30,5 +48,12 @@ for root, dirs, files in os.walk('notícias/resultados-ngramas'):
                 print(f'ERRO------------ {root}/{filename}{extension}')
                 break
             quebra[-1] = quebra[-1].split('})')[0]
-            with open(f'teste-resultados-ngramas/{nomearquivo}.txt', 'w', encoding='utf-8') as text:
+            with open(f'{diretorio}/{filename}.txt', 'w', encoding='utf-8') as text:
                 text.write("\n(".join(quebra))
+        except:
+            os.makedirs(diretorio)
+            try:
+                with open(f'{diretorio}/{filename}.txt', 'w', encoding='utf-8') as text:
+                    text.write(str(Counter(ngrams(word_data.split(), 3))))
+            except:
+                print('erroooooooooooooooooooooooooo')

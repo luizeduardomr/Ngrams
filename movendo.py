@@ -14,7 +14,7 @@ LinesEstadao = Estadao.readlines()
 
 for root, dirs, files in os.walk('notícias/resultados-filtro-automatico'):
     for file in files:
-        for line in LinesFolha:
+        for line in LinesEstadao:
             # Pega as informações do arquivo
             filename, extension = os.path.splitext(file)         
 
@@ -35,7 +35,7 @@ for root, dirs, files in os.walk('notícias/resultados-filtro-automatico'):
             newPasta = divide[1]
             divide = "/".join(divide)
 
-            if('Estadão' in root): #Estadão ou Folha
+            if('Folha' in root): #Estadão ou Folha
                 count+=1
                 continue
             try:
